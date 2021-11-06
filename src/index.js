@@ -17,7 +17,10 @@ const loadMoreBtn = new LoadMoreBtn({
     selector: '[data-actions="load-more"]',
     hidden: true,
 });
-
+const goUpBtn = new LoadMoreBtn({
+    selector: '[data-actions="go-up"]',
+    hidden: true,
+});
 refs.searchForm.addEventListener('submit', onSearch);
 loadMoreBtn.refs.button.addEventListener('click', fetchGalary);
 
@@ -31,6 +34,7 @@ function onSearch(e) {
         return alert('Input text!');
     };
     loadMoreBtn.show();
+    goUpBtn.show();
     imagesApiService.resetPage();
     clearGalary();
     fetchGalary();
