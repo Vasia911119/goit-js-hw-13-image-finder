@@ -1,42 +1,64 @@
+// import { error, Stack } from '@pnotify/core';
+// import '@pnotify/core/dist/BrightTheme.css';
+// import * as basicLightbox from 'basiclightbox';
 import './sass/main.scss';
 import 'material-icons/iconfont/material-icons.css';
-import { error, Stack } from '@pnotify/core';
-import '@pnotify/core/dist/BrightTheme.css';
 import gallery from './templates/gallery.hbs';
-import imageCard from './templates/image-card.hbs';
-import * as basicLightbox from 'basiclightbox';
 import ImagesApiService from './js/apiService'
-// const basicLightbox = require('basiclightbox');
-
+import LoadMoreBtn from './js/loadMoreBtn';
 
 
 const refs = {
     searchForm: document.querySelector('.search-form'),
     galaryContainer: document.querySelector('.gallary-box'),
-    loadMore: document.querySelector('[data-actions="load-more"]')
 }
+
+const loadMoreBtn = new LoadMoreBtn({
+    selector: '[data-actions="load-more"]',
+    hidden: true,
+});
+
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMore.addEventListener('click', onLoadMore);
+loadMoreBtn.refs.button.addEventListener('click', fetchGalary);
+
 
 const imagesApiService = new ImagesApiService();
 
-let searchQuery = '';
-
 function onSearch(e) {
     e.preventDefault();
-    getOptions();
-};
-
-function onLoadMore() {
-    getOptions();
-};
-
-function getOptions() {
-    const options = {
-        searchQuery: refs.searchForm.elements.query.value,
-        API_KEY: '24109020-be7a279fcfced9dd4ee1357c9',
-        page: 1,
-        perPage: 12
+    imagesApiService.query = e.currentTarget.elements.query.value;
+    if (imagesApiService.query === '') {
+        return alert('Input text!');
     };
-    imagesApiService.fetchImages(options);  
+    loadMoreBtn.show();
+    imagesApiService.resetPage();
+    clearGalary();
+    fetchGalary();
+};
+
+function fetchGalary() {
+    loadMoreBtn.disable();
+    imagesApiService.fetchImages().then(hits => {
+        appendGalaryMarkup(hits);
+        loadMoreBtn.enable();
+        scrollPage();
+    });
 }
+
+function appendGalaryMarkup(hits) {
+    if (hits.length > 0) {
+        refs.galaryContainer.insertAdjacentHTML('beforeend', gallery(hits));
+    } else {
+        alert('Nothing found!');
+    };
+};
+
+function clearGalary() {
+    refs.galaryContainer.innerHTML = '';
+};
+
+function scrollPage() {
+    setTimeout(
+        () => loadMoreBtn.refs.button.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        1000);
+};
