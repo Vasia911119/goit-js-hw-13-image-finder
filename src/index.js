@@ -59,6 +59,7 @@ function appendGalaryMarkup(hits) {
 
 function clearGalary() {
     refs.galaryContainer.innerHTML = '';
+    refs.searchForm.query.value = '';
 };
 
 function scrollPage() {
